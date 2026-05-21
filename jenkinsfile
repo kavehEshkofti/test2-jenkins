@@ -1,20 +1,14 @@
 pipeline {
-    agent { 
-        node {
-            label 'docker-agent-alpine-inbound'
-            }
-      }
-    triggers {
-      pollSCM '*/5 * * * *'
-    }
+    agent { node { label 'docker-agent-alpine-inbound' } }
+    triggers { pollSCM '*/5 * * * *' }
     stages {
         stage('Build') {
             steps {
                 echo "Building.."
                 sh '''
-                python3 -m venv .venv
-                . .venv/bin/activate
-                pip install -r requirements.txt
+                    python3 -m venv .venv
+                    . .venv/bin/activate
+                    pip install -r requirements.txt
                 '''
             }
         }
@@ -22,17 +16,16 @@ pipeline {
             steps {
                 echo "Testing.."
                 sh '''
-                python3 hello.py
-                python3 hello.py --name=Kaveh
+                    . .venv/bin/activate
+                    python3 hello.py
+                    python3 hello.py --name=Kaveh
                 '''
             }
         }
         stage('Deliver') {
             steps {
                 echo 'Deliver....'
-                sh '''
-                echo "doing delivery stuff..2"
-                '''
+                sh 'echo "doing delivery stuff.."'
             }
         }
     }
