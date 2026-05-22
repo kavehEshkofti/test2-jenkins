@@ -2,6 +2,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+# Add corporate CA certificates (for SSL inspection/Netskope)
+COPY corporate-certs.crt /usr/local/share/ca-certificates/corporate-certs.crt
+RUN update-ca-certificates
+
 # Copy project files and restore
 COPY src/SimpleConsoleApp/SimpleConsoleApp.csproj src/SimpleConsoleApp/
 COPY tests/SimpleConsoleApp.Tests/SimpleConsoleApp.Tests.csproj tests/SimpleConsoleApp.Tests/
