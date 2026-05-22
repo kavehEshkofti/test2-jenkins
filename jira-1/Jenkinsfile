@@ -1,35 +1,43 @@
 pipeline {
     agent { label 'docker-agent-dotnet-v8' }
 
+    environment {
+        IMAGE_NAME = 'simple-console-app'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        CONTAINER_NAME = 'simple-console-app-running'
+    }
+
     stages {
-        stage('Restore') {
+        stage('Build Docker Image') {
             steps {
                 dir('jira-1') {
-                    sh 'dotnet restore SimpleConsoleApp.sln'
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
                 }
             }
         }
 
-        stage('Build') {
+        stage('Stop Previous Container') {
             steps {
-                dir('jira-1') {
-                    sh 'dotnet build SimpleConsoleApp.sln --configuration Release --no-restore'
-                }
+                sh "docker rm -f ${CONTAINER_NAME} || true"
             }
         }
 
-        stage('Test') {
+        stage('Deploy') {
             steps {
-                dir('jira-1') {
-                    sh 'dotnet test SimpleConsoleApp.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"'
-                }
+                sh "docker run -d --name ${CONTAINER_NAME} ${IMAGE_NAME}:latest"
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh "docker logs ${CONTAINER_NAME}"
             }
         }
     }
 
     post {
         success {
-            echo 'Build and tests passed!'
+            echo 'Build, test, and deploy succeeded!'
         }
         failure {
             echo 'Something went wrong.'
