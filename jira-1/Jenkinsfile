@@ -5,7 +5,7 @@ pipeline {
         stage('Restore') {
             steps {
                 dir('jira-1') {
-                    sh 'dotnet restore SimpleConsoleApp.slnx'
+                    sh 'dotnet restore SimpleConsoleApp.sln'
                 }
             }
         }
@@ -13,7 +13,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('jira-1') {
-                    sh 'dotnet build SimpleConsoleApp.slnx --configuration Release --no-restore'
+                    sh 'dotnet build SimpleConsoleApp.sln --configuration Release --no-restore'
                 }
             }
         }
@@ -21,7 +21,7 @@ pipeline {
         stage('Test') {
             steps {
                 dir('jira-1') {
-                    sh 'dotnet test SimpleConsoleApp.slnx --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"'
+                    sh 'dotnet test SimpleConsoleApp.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"'
                 }
             }
         }
