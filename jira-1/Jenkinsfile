@@ -2,31 +2,30 @@ pipeline {
     agent {
         docker {
             image 'jenkins-dotnet-agent:latest'
-            label 'docker-agent'
         }
     }
 
     stages {
         stage('Restore') {
             steps {
-                sh 'dotnet restore SimpleConsoleApp.slnx'
+                dir('jira-1') {
+                    sh 'dotnet restore SimpleConsoleApp.slnx'
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh 'dotnet build SimpleConsoleApp.slnx --configuration Release --no-restore'
+                dir('jira-1') {
+                    sh 'dotnet build SimpleConsoleApp.slnx --configuration Release --no-restore'
+                }
             }
         }
 
         stage('Test') {
             steps {
-                sh 'dotnet test SimpleConsoleApp.slnx --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"'
-            }
-            post {
-                always {
-                    // Publish test results if you have the MSTest plugin
-                    mstest testResultsFile: '**/test-results.trx'
+                dir('jira-1') {
+                    sh 'dotnet test SimpleConsoleApp.slnx --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"'
                 }
             }
         }
