@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'jenkins-dotnet-agent:latest'
-        }
-    }
+    agent { label 'docker-agent-dotnet-v8' }
 
     stages {
         stage('Restore') {
