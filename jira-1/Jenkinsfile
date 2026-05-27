@@ -8,10 +8,42 @@ pipeline {
     }
 
     stages {
-        stage('Build Docker Image') {
+        stage('Restore') {
             steps {
                 dir('jira-1') {
-                    sh "docker build --network host -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
+                    sh 'dotnet restore SimpleConsoleApp.sln'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('jira-1') {
+                    sh 'dotnet build SimpleConsoleApp.sln --configuration Release --no-restore'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('jira-1') {
+                    sh 'dotnet test SimpleConsoleApp.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"'
+                }
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                dir('jira-1') {
+                    sh 'dotnet publish src/SimpleConsoleApp/SimpleConsoleApp.csproj --configuration Release --no-build -o publish'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('jira-1') {
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
                 }
             }
         }
